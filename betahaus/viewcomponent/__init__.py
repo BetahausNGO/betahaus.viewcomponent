@@ -16,10 +16,11 @@ class ViewGroup(dict):
         if perm_checker is None:
             perm_checker = has_permission
         self.perm_checker = perm_checker
+        self._order = []
     
-    def __call__(self, context, request):
+    def __call__(self, context, request, **kw):
         for va in self.get_context_vas(context, request):
-            yield va(context, request)
+            yield va(context, request, **kw)
 
     def get_context_vas(self, context, request):
         for va in self.values():
@@ -37,6 +38,39 @@ class ViewGroup(dict):
     def __setitem__(self, key, value):
         assert isinstance(value, ViewAction)
         super(ViewGroup, self).__setitem__(key, value)
+        if key not in self._order:
+            self._order.append(key)
+
+    def __delitem__(self, key):
+        super(ViewGroup, self).__detitem__(key)
+        if key in self._order:
+            self._order.remove(key)
+
+    def _get_order(self):
+        return self._order
+    def _set_order(self, value):
+        handle_keys = set(self.order)
+        value = [unicode(x) for x in value]
+        for val in value:
+            if val not in self:
+                raise ValueError("You can't set order with key '%s' since it doesn't exist in this util." % val)
+            handle_keys.remove(val)
+        for unhandled_key in handle_keys:
+            value.append(unhandled_key)
+        self._order = value
+    order = property(_get_order, _set_order)
+
+    def keys(self):
+        return self.order
+
+    def __iter__(self):
+        return iter(self.order)
+
+    def values(self):
+        return [self[key] for key in self.order]
+
+    def items(self):
+        return [(name, self[name]) for name in self.order]
 
 
 class ViewAction(object):
@@ -85,6 +119,6 @@ class view_action(object):
         return wrapped
 
 
-def render_view_group(context, request, name):
+def render_view_group(context, request, name, **kw):
     util = request.registry.getUtility(IViewGroup, name = name)
-    return "".join(util(context, request))
+    return "".join(util(context, request, **kw))
