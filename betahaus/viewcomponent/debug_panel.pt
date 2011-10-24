@@ -1,0 +1,31 @@
+<tal:iterate condition="utils" repeat="item utils">
+	<h4>${item[0]}: ${len(item[1])}</h4>
+
+    <tal:view_actions condition="item[1]" repeat="va item[1].values()">
+    <table>
+        <tbody>
+            <tr>
+                <th>Name</th>
+                <td><b>${va.name}</b></td>
+            </tr>
+        	<tr>
+        		<th>Callable</th>
+				<td>${va.callable.__module__}</td>
+        	</tr>
+        	<tal:itersettings repeat="va_attr va_attrs">
+        	<tal:defs define="val getattr(va, va_attr)">
+        		<tr tal:condition="val">
+        			<th>${va_attr.title()}</th>
+					<td>${val}</td>
+        		</tr>
+        	</tal:defs>
+        	</tal:itersettings>
+        <tbody>
+        </tbody>
+    </table>
+	</tal:view_actions>
+
+</tal:iterate>
+<div tal:condition="not utils">
+    <p>No view group utilities registered.</p>
+</div>

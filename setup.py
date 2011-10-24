@@ -6,7 +6,8 @@ here = os.path.abspath(os.path.dirname(__file__))
 README = open(os.path.join(here, 'README.txt')).read()
 CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
-requires = ('pyramid',)
+requires = ('pyramid=>1.2',
+            'pyramid_debugtoolbar',)
 
 setup(name='betahaus.viewcomponent',
       version='0.1',
