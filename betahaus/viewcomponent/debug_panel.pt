@@ -10,7 +10,7 @@
             </tr>
         	<tr>
         		<th>Callable</th>
-				<td>${va.callable.__module__}</td>
+				<td tal:content="structure callable_repr(va.callable)">Callable name</td>
         	</tr>
         	<tal:itersettings repeat="va_attr va_attrs">
         	<tal:defs define="val getattr(va, va_attr)">

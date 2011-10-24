@@ -35,11 +35,15 @@ class ViewGroupDebugPanel(DebugPanel):
         vars = dict(
             utils = self.utils,
             va_attrs = VA_ATTRS,
+            callable_repr = self.callable_repr,
         )
         return self.render(
             'betahaus.viewcomponent:debug_panel.pt',
             vars,
             request=self.request)
+
+    def callable_repr(self, _callable):
+        return '%s.<b>%s</b>' % (_callable.__module__, _callable.__name__)
 
 
 def includeme(config):
