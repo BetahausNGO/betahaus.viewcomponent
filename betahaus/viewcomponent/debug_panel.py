@@ -49,7 +49,8 @@ def includeme(config):
     """
     try:
         panels = config.registry.settings['debugtoolbar.panels']
-        panels.append(ViewGroupDebugPanel)
+        if ViewGroupDebugPanel not in panels:
+            panels.append(ViewGroupDebugPanel)
     except KeyError:
         raise KeyError("Did you include pyramid_debugtoolbar before including this?s")
 
