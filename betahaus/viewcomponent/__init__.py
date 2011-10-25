@@ -76,7 +76,7 @@ class ViewGroup(dict):
 class ViewAction(object):
 
     def __init__(self, _callable, name, title = u"", description = u"",
-                 permission = None, interface = None, containment = None):
+                 permission = None, interface = None, containment = None, **kw):
         assert callable(_callable)
         assert isinstance(name, basestring)
         self.callable = _callable
@@ -86,6 +86,7 @@ class ViewAction(object):
         self.permission = permission
         self.interface = interface
         self.containment = containment
+        self.kwargs = kw
 
     def __call__(self, context, request, **kw):
         return self.callable(context, request, self, **kw)
