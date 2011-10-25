@@ -1,5 +1,5 @@
 <tal:iterate condition="utils" repeat="item utils">
-	<h4>${item[0]}: ${len(item[1])}</h4>
+    <h4>${item[0]}: ${len(item[1])}</h4>
 
     <tal:view_actions condition="item[1]" repeat="va item[1].values()">
     <table>
@@ -8,22 +8,30 @@
                 <th>Name</th>
                 <td><b>${va.name}</b></td>
             </tr>
-        	<tr>
-        		<th>Callable</th>
-				<td tal:content="structure callable_repr(va.callable)">Callable name</td>
-        	</tr>
-        	<tal:itersettings repeat="va_attr va_attrs">
-        	<tal:defs define="val getattr(va, va_attr)">
-        		<tr tal:condition="val">
-        			<th>${va_attr.title()}</th>
-					<td>${val}</td>
-        		</tr>
-        	</tal:defs>
-        	</tal:itersettings>
+            <tr>
+                <th>Callable</th>
+                <td tal:content="structure callable_repr(va.callable)">Callable name</td>
+            </tr>
+            <tal:itersettings repeat="va_attr va_attrs">
+            <tal:defs define="val getattr(va, va_attr)">
+                <tr tal:condition="val">
+                    <th>${va_attr.title()}</th>
+                    <td>${val}</td>
+                </tr>
+            </tal:defs>
+            </tal:itersettings>
+            <tr tal:condition="va.kwargs">
+                <th>Extra kwargs</th>
+                <td>
+                    <tal:iterate repeat="kw va.kwargs.items()">
+                        <b>${kw[0]}</b>: <span>${kw[1]}</span><br/>
+                    </tal:iterate>
+                </td>
+            </tr>
         <tbody>
         </tbody>
     </table>
-	</tal:view_actions>
+    </tal:view_actions>
 
 </tal:iterate>
 <div tal:condition="not utils">

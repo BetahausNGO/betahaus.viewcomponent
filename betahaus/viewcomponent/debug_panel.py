@@ -4,7 +4,6 @@ from betahaus.viewcomponent.interfaces import IViewGroup
 
 
 VA_ATTRS = ('title',
-            'description',
             'permission',
             'interface',
             'containment',)
