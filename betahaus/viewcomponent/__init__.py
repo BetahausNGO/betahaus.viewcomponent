@@ -19,8 +19,12 @@ class ViewGroup(dict):
         self._order = []
     
     def __call__(self, context, request, **kw):
+        results = []
         for va in self.get_context_vas(context, request):
-            yield va(context, request, **kw)
+            out = va(context, request, **kw)
+            assert isinstance(out, basestring)
+            results.append(out)
+        return results
 
     def get_context_vas(self, context, request):
         for va in self.values():

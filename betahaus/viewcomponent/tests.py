@@ -9,7 +9,7 @@ from betahaus.viewcomponent.fixtures import contexts
 
 
 def _dummy_callable(*args):
-    return args
+    return "".join([str(x) for x in args])
 
 def _callable_text(context, request, va):
     return "%s, %s, %s" % (context.__class__, request.__class__, str(va))
@@ -49,8 +49,11 @@ class ViewGroupTests(TestCase):
         va = self._view_action(_dummy_callable, 'name')
         obj['va'] = va
         self.assertEqual(len(tuple(obj('context', 'request'))), 1)
-        output = [x for x in obj('context', 'request')]
-        self.assertEqual(output, [('context', 'request', va)])
+        self.assertEqual(obj('context', 'request'), ["contextrequest<betahaus.viewcomponent.ViewAction 'name'>"])
+
+    def test_call_no_va(self):
+        obj = self._cut()
+        self.assertEqual(obj('context', 'request'), [])
 
     def test_context_vas_unrestricted(self):
         obj = self._cut()
@@ -124,9 +127,7 @@ class ViewActionTests(TestCase):
 
     def test_callable(self):
         obj = self._cut(_dummy_callable, 'name')
-        self.assertEqual(obj('hello', 'world')[0], 'hello')
-        self.assertEqual(obj('hello', 'world')[1], 'world')
-        self.assertEqual(obj('hello', 'world')[2], obj)
+        self.assertEqual(obj('hello', 'world'), "helloworld<betahaus.viewcomponent.ViewAction 'name'>")
 
 
 class ViewActionDecoratorTests(TestCase):
@@ -139,9 +140,8 @@ class ViewActionDecoratorTests(TestCase):
     def test_dummy_picked_up_on_scan(self):
         self.config.include("betahaus.viewcomponent.fixtures.dummy")
         util = self.config.registry.getUtility(IViewGroup, name = 'group')
-        res = tuple(util('context', 'request'))[0]
-        self.assertEqual(res[0], 'context')
-        self.assertEqual(res[1], 'request')
+        res = util('context', 'request')
+        self.assertEqual(res, ["contextrequest<betahaus.viewcomponent.ViewAction 'action'>"])
 
 
 class RenderViewGroupTests(TestCase):
