@@ -55,5 +55,5 @@ def includeme(config):
         if ViewGroupDebugPanel not in panels:
             panels.append(ViewGroupDebugPanel)
     except KeyError:
-        raise KeyError("Did you include pyramid_debugtoolbar before including this?s")
+        raise KeyError("Did you include pyramid_debugtoolbar before including this?")
 
