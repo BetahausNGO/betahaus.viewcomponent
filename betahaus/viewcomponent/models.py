@@ -1,5 +1,4 @@
 from zope.interface import implements
-from zope.interface.interfaces import ComponentLookupError
 from pyramid.security import has_permission
 from pyramid.traversal import find_interface
 
