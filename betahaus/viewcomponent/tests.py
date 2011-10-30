@@ -24,12 +24,12 @@ class ViewGroupTests(TestCase):
 
     @property
     def _cut(self):
-        from betahaus.viewcomponent import ViewGroup
+        from betahaus.viewcomponent.models import ViewGroup
         return ViewGroup
 
     @property
     def _view_action(self):
-        from betahaus.viewcomponent import ViewAction
+        from betahaus.viewcomponent.models import ViewAction
         return ViewAction
 
     def test_verify_class(self):
@@ -49,7 +49,7 @@ class ViewGroupTests(TestCase):
         va = self._view_action(_dummy_callable, 'name')
         obj['va'] = va
         self.assertEqual(len(tuple(obj('context', 'request'))), 1)
-        self.assertEqual(obj('context', 'request'), ["contextrequest<betahaus.viewcomponent.ViewAction 'name'>"])
+        self.assertEqual(obj('context', 'request'), ["contextrequest<betahaus.viewcomponent.models.ViewAction 'name'>"])
 
     def test_call_no_va(self):
         obj = self._cut()
@@ -122,12 +122,12 @@ class ViewActionTests(TestCase):
 
     @property
     def _cut(self):
-        from betahaus.viewcomponent import ViewAction
+        from betahaus.viewcomponent.models import ViewAction
         return ViewAction
 
     def test_callable(self):
         obj = self._cut(_dummy_callable, 'name')
-        self.assertEqual(obj('hello', 'world'), "helloworld<betahaus.viewcomponent.ViewAction 'name'>")
+        self.assertEqual(obj('hello', 'world'), "helloworld<betahaus.viewcomponent.models.ViewAction 'name'>")
 
 
 class ViewActionDecoratorTests(TestCase):
@@ -141,7 +141,7 @@ class ViewActionDecoratorTests(TestCase):
         self.config.include("betahaus.viewcomponent.fixtures.dummy")
         util = self.config.registry.getUtility(IViewGroup, name = 'group')
         res = util('context', 'request')
-        self.assertEqual(res, ["contextrequest<betahaus.viewcomponent.ViewAction 'action'>"])
+        self.assertEqual(res, ["contextrequest<betahaus.viewcomponent.models.ViewAction 'action'>"])
 
 
 class RenderViewGroupTests(TestCase):
@@ -161,5 +161,26 @@ class RenderViewGroupTests(TestCase):
         context = testing.DummyResource()
         self.config.include("betahaus.viewcomponent.fixtures.dummy")
         res = self._fut(context, request, 'html')
-        expected = "pyramid.testing.DummyResource, <class 'pyramid.testing.DummyRequest'>, <betahaus.viewcomponent.ViewAction 'stuff'>"
+        expected = "pyramid.testing.DummyResource, <class 'pyramid.testing.DummyRequest'>, <betahaus.viewcomponent.models.ViewAction 'stuff'>"
+        self.assertEqual(res, expected)
+
+
+class RenderViewActionTests(TestCase):
+    def setUp(self):
+        self.config = testing.setUp()
+
+    def tearDown(self):
+        testing.tearDown()
+
+    @property
+    def _fut(self):
+        from betahaus.viewcomponent import render_view_action
+        return render_view_action
+
+    def test_render_view_action(self):
+        request = testing.DummyRequest()
+        context = testing.DummyResource()
+        self.config.include("betahaus.viewcomponent.fixtures.group")
+        res = self._fut(context, request, 'group', 'one')
+        expected = "one"
         self.assertEqual(res, expected)
