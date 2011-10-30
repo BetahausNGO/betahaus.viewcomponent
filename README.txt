@@ -1,1 +1,5 @@
-betahaus.viewcomponent README
+ViewComponent
+=============
+
+Introduction
+------------

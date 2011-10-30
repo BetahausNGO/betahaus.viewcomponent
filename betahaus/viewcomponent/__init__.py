@@ -9,7 +9,9 @@ from betahaus.viewcomponent.interfaces import IViewGroup
 
 
 class ViewGroup(dict):
-    """ Named utility for views. Behaves like a dict with some extra funkyness."""
+    """ Named utility for views. Behaves like a dict with some extra funkyness.
+        See interfaces.py for documentation.
+    """
     implements(IViewGroup)
     
     def __init__(self, perm_checker = None):
@@ -123,6 +125,13 @@ class view_action(object):
         return wrapped
 
 
-def render_view_group(context, request, name, **kw):
-    util = request.registry.getUtility(IViewGroup, name = name)
+def render_view_group(context, request, group, **kw):
+    util = request.registry.getUtility(IViewGroup, name = group)
     return "".join(util(context, request, **kw))
+
+def render_view_action(context, request, group, name, **kw):
+    """ Render a single view action.
+    """
+    util = request.registry.getUtility(IViewGroup, name = group)
+    return util[name](context, request, **kw)
+
