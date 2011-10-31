@@ -1,5 +1,0 @@
-ViewComponent
-=============
-
-Introduction
-------------
