@@ -5,8 +5,8 @@ from pyramid.traversal import find_interface
 from betahaus.viewcomponent.interfaces import IViewGroup
 
 
-class ViewGroup(dict):
-    """ Named utility for views. Behaves like a dict with some extra funkyness.
+class ViewGroup(object):
+    """ Named utility for views. Behaves like an ordered dict with some extra funkyness.
         See interfaces.py for documentation.
     """
     implements(IViewGroup)
@@ -16,14 +16,49 @@ class ViewGroup(dict):
             perm_checker = has_permission
         self.perm_checker = perm_checker
         self._order = []
+        self._data = {}
     
     def __call__(self, context, request, **kw):
-        results = []
+        results = ""
         for va in self.get_context_vas(context, request):
             out = va(context, request, **kw)
             assert isinstance(out, basestring)
-            results.append(out)
+            results += out
         return results
+
+    def __getitem__(self, key):
+        return self._data[key]
+
+    def __setitem__(self, key, value):
+        assert isinstance(value, ViewAction)
+        self._data[key] = value
+        if key not in self._order:
+            self._order.append(key)
+
+    def __delitem__(self, key):
+        del self._data[key]
+        if key in self._order:
+            self._order.remove(key)
+
+    def __len__(self):
+        return len(self._data)
+
+    def __contains__(self, key):
+        return key in self._data
+
+    def _get_order(self):
+        return self._order
+    def _set_order(self, value):
+        handle_keys = set(self.order)
+        value = [unicode(x) for x in value]
+        for val in value:
+            if val not in self:
+                raise KeyError("You can't set order with key '%s' since it doesn't exist in this util." % val)
+            handle_keys.remove(val)
+        for unhandled_key in handle_keys:
+            value.append(unhandled_key)
+        self._order = value
+    order = property(_get_order, _set_order)
 
     def get_context_vas(self, context, request):
         for va in self.values():
@@ -38,42 +73,18 @@ class ViewGroup(dict):
     def add(self, view_action):
         self[view_action.name] = view_action
 
-    def __setitem__(self, key, value):
-        assert isinstance(value, ViewAction)
-        super(ViewGroup, self).__setitem__(key, value)
-        if key not in self._order:
-            self._order.append(key)
-
-    def __delitem__(self, key):
-        super(ViewGroup, self).__detitem__(key)
-        if key in self._order:
-            self._order.remove(key)
-
-    def _get_order(self):
-        return self._order
-    def _set_order(self, value):
-        handle_keys = set(self.order)
-        value = [unicode(x) for x in value]
-        for val in value:
-            if val not in self:
-                raise ValueError("You can't set order with key '%s' since it doesn't exist in this util." % val)
-            handle_keys.remove(val)
-        for unhandled_key in handle_keys:
-            value.append(unhandled_key)
-        self._order = value
-    order = property(_get_order, _set_order)
+    def get(self, key, default=None):
+        return self._data.get(key, default)
 
     def keys(self):
         return self.order
-
-    def __iter__(self):
-        return iter(self.order)
 
     def values(self):
         return [self[key] for key in self.order]
 
     def items(self):
         return [(name, self[name]) for name in self.order]
+
 
 
 class ViewAction(object):

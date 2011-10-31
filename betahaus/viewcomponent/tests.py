@@ -14,6 +14,9 @@ def _dummy_callable(*args):
 def _callable_text(context, request, va):
     return "%s, %s, %s" % (context.__class__, request.__class__, str(va))
 
+def _name_callable(context, request, va):
+    return va.name
+
 
 class ViewGroupTests(TestCase):
     def setUp(self):
@@ -44,16 +47,67 @@ class ViewGroupTests(TestCase):
         obj.add(va)
         self.failUnless('name' in obj)
 
+    def test_del(self):
+        obj = self._cut()
+        va = self._view_action(_dummy_callable, 'name')
+        obj.add(va)
+        self.failUnless('name' in obj) #To make sure
+        del obj['name']
+        self.failIf('name' in obj)
+
+    def test_len(self):
+        obj = self._cut()
+        va = self._view_action(_dummy_callable, 'name')
+        obj.add(va)
+        self.assertEqual(len(obj), 1)
+
     def test_call(self):
         obj = self._cut()
         va = self._view_action(_dummy_callable, 'name')
         obj['va'] = va
-        self.assertEqual(len(tuple(obj('context', 'request'))), 1)
-        self.assertEqual(obj('context', 'request'), ["contextrequest<betahaus.viewcomponent.models.ViewAction 'name'>"])
+        self.assertEqual(obj('context', 'request'), "contextrequest<betahaus.viewcomponent.models.ViewAction 'name'>")
 
     def test_call_no_va(self):
         obj = self._cut()
-        self.assertEqual(obj('context', 'request'), [])
+        self.assertEqual(obj('context', 'request'), '')
+
+    def test_default_order(self):
+        obj = self._cut()
+        obj.add(self._view_action(_dummy_callable, 'one'))
+        obj.add(self._view_action(_dummy_callable, 'two'))
+        self.assertEqual(obj.order, ['one', 'two'])
+        
+    def test_set_order(self):
+        obj = self._cut()
+        obj.add(self._view_action(_dummy_callable, 'one'))
+        obj.add(self._view_action(_dummy_callable, 'two'))
+        obj.order = ['two', 'one']
+        self.assertEqual(obj.order, ['two', 'one'])
+
+    def test_order_respected_on_call(self):
+        obj = self._cut()
+        obj.add(self._view_action(_name_callable, 'one'))
+        obj.add(self._view_action(_name_callable, 'two'))
+        obj.order = ['two', 'one']
+        context = None
+        request = None
+        self.assertEqual(obj(context, request), 'twoone')
+
+    def test_order_bad_key(self):
+        obj = self._cut()
+        try:
+            obj.order = ['404']
+            self.fail("KeyError not raised")
+        except KeyError:
+            pass
+
+    def test_set_order_with_some_keys_left_out(self):
+        obj = self._cut()
+        obj.add(self._view_action(_name_callable, 'one'))
+        obj.add(self._view_action(_name_callable, 'two'))
+        obj.order = ['two']
+        #one should be appended as well
+        self.assertEqual(obj.order, ['two', 'one'])
 
     def test_context_vas_unrestricted(self):
         obj = self._cut()
@@ -110,7 +164,43 @@ class ViewGroupTests(TestCase):
         self.assertEqual(res, 5)
         #No iface implemented by context
         res = len(tuple(obj.get_context_vas(testing.DummyResource(), 'request')))
-        self.assertEqual(res, 1)        
+        self.assertEqual(res, 1)
+
+    def test_get(self):
+        obj = self._cut()
+        va = self._view_action(_dummy_callable, 'hello')
+        obj.add(va)
+        self.assertEqual(obj.get('hello'), va)
+
+    def test_keys_respect_order(self):
+        obj = self._cut()
+        obj.add(self._view_action(_name_callable, 'one'))
+        obj.add(self._view_action(_name_callable, 'two'))
+        obj.add(self._view_action(_name_callable, 'three'))
+        obj.order = ['three', 'one']
+        self.assertEqual(obj.keys(), ['three', 'one', 'two'])
+
+    def test_values_respect_order(self):
+        obj = self._cut()
+        va1 = self._view_action(_name_callable, 'one')
+        va2 = self._view_action(_name_callable, 'two')
+        va3 = self._view_action(_name_callable, 'three')
+        obj.add(va1)
+        obj.add(va2)
+        obj.add(va3)
+        obj.order = ['three', 'one']
+        self.assertEqual(obj.values(), [va3, va1, va2])
+
+    def test_items_respect_order(self):
+        obj = self._cut()
+        va1 = self._view_action(_name_callable, 'one')
+        va2 = self._view_action(_name_callable, 'two')
+        va3 = self._view_action(_name_callable, 'three')
+        obj.add(va1)
+        obj.add(va2)
+        obj.add(va3)
+        obj.order = ['three', 'one']
+        self.assertEqual(obj.items(), [('three', va3), ('one', va1), ('two', va2)])
 
 
 class ViewActionTests(TestCase):
@@ -141,7 +231,7 @@ class ViewActionDecoratorTests(TestCase):
         self.config.include("betahaus.viewcomponent.fixtures.dummy")
         util = self.config.registry.getUtility(IViewGroup, name = 'group')
         res = util('context', 'request')
-        self.assertEqual(res, ["contextrequest<betahaus.viewcomponent.models.ViewAction 'action'>"])
+        self.assertEqual(res, "contextrequest<betahaus.viewcomponent.models.ViewAction 'action'>")
 
 
 class RenderViewGroupTests(TestCase):

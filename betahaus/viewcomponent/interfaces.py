@@ -5,13 +5,17 @@ from zope.interface import Interface
 class IViewGroup(Interface):
     """ A dict-like utility that will contain ViewAction objects.
         There are a few differences from normal dictionaries.
-        
+
         * It can only contain ViewAction objects
         * It's ordered (with the order-attribute)
         * It's callable
-        
+
         You normally won't add these yourself, but rather use the decorator
         view_action which will create ViewGroup utilities as needed.
+
+        Below, we use the followong names:
+        * view_group is an instantiated ViewGroup object.
+        * view_action is an instantiated ViewAction object. (I.e. not the decorator)
     """
 
     order = Attribute("""
@@ -34,6 +38,24 @@ class IViewGroup(Interface):
         """ Return a list with the output of each contained view action.
         """
 
+    def __getitem__(key):
+        """ Normal dict interface """
+
+    def __setitem__(key, value):
+        """ Normal dict interface """
+
+    def __delitem__(key):
+        """ Normal dict interface """
+
+    def __len__():
+        """ Number of contained ViewAction objects. """
+
+    def __contains__(key):
+        """ To implement dict interface with 'in' command, example:
+            >>> 'logo' in view_group
+            True
+        """
+
     def get_context_vas(context, request):
         """ Return a generator with the ViewAction objects, without calling them
         """
@@ -41,9 +63,12 @@ class IViewGroup(Interface):
     def add(view_action):
         """ Add a ViewAction object. It will be added with it's name attribute
             as key.
-            This is the same as doing the following, where vg is a ViewGroup and va is a ViewAction:
-            vg['name'] = va
+            This is the same as doing the followin:
+            >>> view_group['name'] = view_action
         """
+
+    def get(key, default=None):
+        """ Same as dict get """
 
     def keys():
         """ Same as normal dict, but ordered. """
