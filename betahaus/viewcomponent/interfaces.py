@@ -17,6 +17,10 @@ class IViewGroup(Interface):
         * view_group is an instantiated ViewGroup object.
         * view_action is an instantiated ViewAction object. (I.e. not the decorator)
     """
+    name = Attribute("""
+        Name of this ViewGroup. It's not needed, but it makes debugging a lot easier.
+        The decorator will set the name when it registers the adapter. The name will be
+        the same as the utility name.""")
 
     order = Attribute("""
         A property which will return a tuple of the set order. You can change the order
@@ -29,13 +33,16 @@ class IViewGroup(Interface):
         arguments as Pyramids version, i.e. permission, context, request.
         See pyramid.security.has_permission for more info.""")
 
-    def __init__(perm_checker = None):
+    def __init__(name = None, perm_checker = None):
         """ Initialize, accepts permission checker as argument which will default
             to Pyramids version if None is supplied.
         """
     
     def __call__(context, request, **kw):
         """ Return a list with the output of each contained view action.
+            Call will also catch exceptions and add a bit extra information
+            to them so it's easier to identify where it came from.
+            (Tracebacks can otherwise be kind of weird, especially from nested view groups)
         """
 
     def __getitem__(key):

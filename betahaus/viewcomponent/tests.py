@@ -17,6 +17,12 @@ def _callable_text(context, request, va):
 def _name_callable(context, request, va):
     return va.name
 
+def _bad_callable(*args):
+    return
+
+def _failing_callable(*args):
+    raise Exception('Buhu!')
+
 
 class ViewGroupTests(TestCase):
     def setUp(self):
@@ -70,6 +76,21 @@ class ViewGroupTests(TestCase):
     def test_call_no_va(self):
         obj = self._cut()
         self.assertEqual(obj('context', 'request'), '')
+
+    def test_call_bad_output_from_va(self):
+        obj = self._cut()
+        va = self._view_action(_bad_callable, 'name')
+        obj.add(va)
+        self.assertRaises(TypeError, obj, None, None)
+
+    def test_call_exception_from_va(self):
+        obj = self._cut()
+        va = self._view_action(_failing_callable, 'this_view_group')
+        obj.add(va)
+        try:
+            obj(None, None)
+        except Exception, exc:
+            self.failUnless('this_view_group' in exc.message)
 
     def test_default_order(self):
         obj = self._cut()

@@ -11,7 +11,8 @@ class ViewGroup(object):
     """
     implements(IViewGroup)
     
-    def __init__(self, perm_checker = None):
+    def __init__(self, name = None, perm_checker = None):
+        self.name = name
         if perm_checker is None:
             perm_checker = has_permission
         self.perm_checker = perm_checker
@@ -19,12 +20,19 @@ class ViewGroup(object):
         self._data = {}
     
     def __call__(self, context, request, **kw):
-        results = ""
-        for va in self.get_context_vas(context, request):
-            out = va(context, request, **kw)
-            assert isinstance(out, basestring)
-            results += out
-        return results
+        try:
+            return "".join([va(context, request, **kw) for va in self.get_context_vas(context, request)])
+        except Exception:
+            #This structure might look silly, but the point of it is to provide useful
+            #traceback while not slowing down a normal call.
+            for va in self.get_context_vas(context, request):
+                try:
+                    output = va(context, request, **kw)
+                except Exception, exc:
+                    exc.message = "ViewAction '%s' of ViewGroup '%s' raised an exception: %s" % (va.name, self.name, exc.message)
+                    raise exc
+                if not isinstance(output, basestring):
+                    raise TypeError("ViewAction '%s' of ViewGroup '%s' didn't return a string. Output was: %s" % (va.name, self.name, output))
 
     def __getitem__(self, key):
         return self._data[key]
@@ -85,6 +93,10 @@ class ViewGroup(object):
     def items(self):
         return [(name, self[name]) for name in self.order]
 
+    def __repr__(self): # pragma : no cover
+        klass = self.__class__
+        classname = '%s.%s' % (klass.__module__, klass.__name__)
+        return "<%s '%s'>" % (classname, self.name)
 
 
 class ViewAction(object):
