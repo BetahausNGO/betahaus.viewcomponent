@@ -1,15 +1,15 @@
-from zope.interface import implements
+from zope.interface import implementer
 from pyramid.security import has_permission
 from pyramid.traversal import find_interface
 
 from betahaus.viewcomponent.interfaces import IViewGroup
 
 
+@implementer(IViewGroup)
 class ViewGroup(object):
     """ Named utility for views. Behaves like an ordered dict with some extra funkyness.
         See interfaces.py for documentation.
     """
-    implements(IViewGroup)
     
     def __init__(self, name = None, perm_checker = None):
         self.name = name
