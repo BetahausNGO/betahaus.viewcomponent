@@ -28,8 +28,10 @@ class ViewGroup(object):
             for va in self.get_context_vas(context, request):
                 try:
                     output = va(context, request, **kw)
-                except Exception, exc:
-                    exc.message = "ViewAction '%s' of ViewGroup '%s' raised an exception: %s" % (va.name, self.name, exc.message)
+                except Exception as exc:
+                    eargs = list(exc.args)
+                    eargs[0] = "ViewAction '%s' of ViewGroup '%s' raised an exception: %s" % (va.name, self.name, exc.args[0])
+                    exc.args = eargs
                     raise exc
                 if not isinstance(output, basestring):
                     raise TypeError("ViewAction '%s' of ViewGroup '%s' didn't return a string. Output was: %s" % (va.name, self.name, output))

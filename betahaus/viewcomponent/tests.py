@@ -90,7 +90,7 @@ class ViewGroupTests(TestCase):
         try:
             obj(None, None)
         except Exception, exc:
-            self.failUnless('this_view_group' in exc.message)
+            self.failUnless('this_view_group' in exc.args[0])
 
     def test_default_order(self):
         obj = self._cut()
