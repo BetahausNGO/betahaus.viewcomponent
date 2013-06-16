@@ -11,7 +11,7 @@ requires = ('pyramid>=1.2',
             'pyramid_debugtoolbar',)
 
 setup(name='betahaus.viewcomponent',
-      version='0.1b',
+      version='0.2dev',
       description='betahaus.viewcomponent',
       long_description=README + '\n\n' + CREDITS + '\n\n' +  CHANGES,
       classifiers=[

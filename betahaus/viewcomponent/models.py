@@ -20,21 +20,22 @@ class ViewGroup(object):
         self._data = {}
     
     def __call__(self, context, request, **kw):
+        results = []
+        for va in self.get_context_vas(context, request):
+            try:
+                results.append(va(context, request, **kw))
+            except Exception as exc:
+                eargs = list(exc.args)
+                eargs[0] = "ViewAction '%s' of ViewGroup '%s' raised an exception: %s" % (va.name, self.name, exc.args[0])
+                exc.args = eargs
+                raise exc
         try:
-            return "".join([va(context, request, **kw) for va in self.get_context_vas(context, request)])
-        except Exception:
-            #This structure might look silly, but the point of it is to provide useful
-            #traceback while not slowing down a normal call.
-            for va in self.get_context_vas(context, request):
-                try:
-                    output = va(context, request, **kw)
-                except Exception as exc:
-                    eargs = list(exc.args)
-                    eargs[0] = "ViewAction '%s' of ViewGroup '%s' raised an exception: %s" % (va.name, self.name, exc.args[0])
-                    exc.args = eargs
-                    raise exc
-                if not isinstance(output, basestring):
-                    raise TypeError("ViewAction '%s' of ViewGroup '%s' didn't return a string. Output was: %s" % (va.name, self.name, output))
+            return u"".join([x for x in results if x])
+        except TypeError as exc:
+            eargs = list(exc.args)
+            eargs[0] = "ViewGroup '%s' raised an exception: %s" % (self.name, exc.args[0])
+            exc.args = eargs
+            raise exc
 
     def __getitem__(self, key):
         return self._data[key]
@@ -58,6 +59,7 @@ class ViewGroup(object):
 
     def _get_order(self):
         return self._order
+
     def _set_order(self, value):
         handle_keys = set(self.order)
         value = [unicode(x) for x in value]
@@ -71,6 +73,7 @@ class ViewGroup(object):
     order = property(_get_order, _set_order)
 
     def get_context_vas(self, context, request):
+        results = []
         for va in self.values():
             if va.interface and not va.interface.providedBy(context):
                 continue
@@ -78,7 +81,8 @@ class ViewGroup(object):
                 continue
             if va.containment and not find_interface(context, va.containment):
                 continue
-            yield va
+            results.append(va)
+        return results
 
     def add(self, view_action):
         self[view_action.name] = view_action

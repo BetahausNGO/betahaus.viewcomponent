@@ -18,10 +18,13 @@ def _name_callable(context, request, va):
     return va.name
 
 def _bad_callable(*args):
-    return
+    return TestCase
 
 def _failing_callable(*args):
     raise Exception('Buhu!')
+
+def _none_callable(*args):
+    pass
 
 
 class ViewGroupTests(TestCase):
@@ -91,6 +94,12 @@ class ViewGroupTests(TestCase):
             obj(None, None)
         except Exception, exc:
             self.failUnless('this_view_group' in exc.args[0])
+
+    def test_call_empty_output(self):
+        obj = self._cut()
+        va = self._view_action(_none_callable, 'this_view_group')
+        obj.add(va)
+        self.assertEqual(obj(None, None), u"")
 
     def test_default_order(self):
         obj = self._cut()
