@@ -4,6 +4,7 @@ from pyramid import testing
 from zope.interface.verify import verifyClass
 from zope.interface.verify import verifyObject
 
+from betahaus.viewcomponent.interfaces import IViewAction
 from betahaus.viewcomponent.interfaces import IViewGroup
 from betahaus.viewcomponent.fixtures import contexts
 
@@ -55,6 +56,12 @@ class ViewGroupTests(TestCase):
         va = self._view_action(_dummy_callable, 'name')
         obj.add(va)
         self.failUnless('name' in obj)
+
+    def test_add_sets_parent(self):
+        obj = self._cut()
+        va = self._view_action(_dummy_callable, 'name')
+        obj.add(va)
+        self.assertEqual(va.parent, obj)
 
     def test_del(self):
         obj = self._cut()
@@ -139,63 +146,6 @@ class ViewGroupTests(TestCase):
         #one should be appended as well
         self.assertEqual(obj.order, ['two', 'one'])
 
-    def test_context_vas_unrestricted(self):
-        obj = self._cut()
-        obj.add(self._view_action(_dummy_callable, 'hello'))
-        obj.add(self._view_action(_dummy_callable, 'world'))
-        res = tuple(obj.get_context_vas('context', 'request'))
-        self.assertEqual(len(res), 2)
-
-    def test_context_vas_special_permission(self):
-        def _perm_checker(perm, context, request):
-            """ Always say yes on text 'True'. """
-            return perm == 'True'
-
-        obj = self._cut(perm_checker = _perm_checker)
-        obj.add(self._view_action(_dummy_callable, 'hello'))
-        obj.add(self._view_action(_dummy_callable, 'cruel', permission = 'False'))
-        obj.add(self._view_action(_dummy_callable, 'world', permission = 'True'))
-        res = tuple(obj.get_context_vas('context', 'request'))
-        self.assertEqual(len(res), 2)
-
-    def test_context_vas_interface_required(self):
-        obj = self._cut()
-        obj.add(self._view_action(_dummy_callable, 'root_stuff', interface = contexts.IRoot))
-        obj.add(self._view_action(_dummy_callable, 'more_root', interface = contexts.IRoot))
-        obj.add(self._view_action(_dummy_callable, 'no_interface'))
-        obj.add(self._view_action(_dummy_callable, 'organisation_stuff', interface = contexts.IOrganisation))
-        obj.add(self._view_action(_dummy_callable, 'more_org', interface = contexts.IOrganisation))
-        obj.add(self._view_action(_dummy_callable, 'even_more_org', interface = contexts.IOrganisation))
-        #Root
-        res = len(tuple(obj.get_context_vas(contexts.Root(), 'request')))
-        self.assertEqual(res, 3)
-        #Organisation
-        res = len(tuple(obj.get_context_vas(contexts.Organisation(), 'request')))
-        self.assertEqual(res, 4)
-        #No iface
-        res = len(tuple(obj.get_context_vas(testing.DummyResource(), 'request')))
-        self.assertEqual(res, 1)
-
-    def test_context_vas_containment(self):
-        root = contexts.Root()
-        org = contexts.Organisation()
-        root['org'] = org
-        obj = self._cut()
-        obj.add(self._view_action(_dummy_callable, 'root_if', containment = contexts.IRoot))
-        obj.add(self._view_action(_dummy_callable, 'root_cls', containment = contexts.Root))
-        obj.add(self._view_action(_dummy_callable, 'org_if', containment = contexts.IOrganisation))
-        obj.add(self._view_action(_dummy_callable, 'org_cls', containment = contexts.Organisation))
-        obj.add(self._view_action(_dummy_callable, 'no_containment'))
-        #Root
-        res = len(tuple(obj.get_context_vas(root, 'request')))
-        self.assertEqual(res, 3)
-        #Organisation
-        res = len(tuple(obj.get_context_vas(org, 'request')))
-        self.assertEqual(res, 5)
-        #No iface implemented by context
-        res = len(tuple(obj.get_context_vas(testing.DummyResource(), 'request')))
-        self.assertEqual(res, 1)
-
     def test_get(self):
         obj = self._cut()
         va = self._view_action(_dummy_callable, 'hello')
@@ -245,9 +195,71 @@ class ViewActionTests(TestCase):
         from betahaus.viewcomponent.models import ViewAction
         return ViewAction
 
+    def _dummy_vg(self, perm_checker = None):
+        from betahaus.viewcomponent.models import ViewGroup
+        return ViewGroup(name = 'dummy', perm_checker = perm_checker)
+
+    def test_verify_class(self):
+        self.failUnless(verifyClass(IViewAction, self._cut))
+
+    def test_verify_obj(self):
+        self.failUnless(verifyObject(IViewAction, self._cut(_dummy_callable, 'name')))
+
     def test_callable(self):
         obj = self._cut(_dummy_callable, 'name')
         self.assertEqual(obj('hello', 'world'), "helloworld<betahaus.viewcomponent.models.ViewAction 'name'>")
+
+    def test_call_no_restriction(self):
+        obj = self._cut(_name_callable, 'name')
+        context = testing.DummyModel()
+        request = testing.DummyRequest()
+        self.assertEqual(obj(context, request), 'name')
+
+    def test_call_with_perm_allow(self):
+        def _ck_true(*args):
+            return True
+        vg = self._dummy_vg(_ck_true)
+        obj = self._cut(_name_callable, 'allow', permission = 'Dummy')
+        vg.add(obj)
+        context = testing.DummyModel()
+        request = testing.DummyRequest()
+        self.assertEqual(obj(context, request), 'allow')
+
+    def test_call_with_perm_deny(self):
+        def _ck_false(*args):
+            return False
+        vg = self._dummy_vg(_ck_false)
+        obj = self._cut(_name_callable, 'deny', permission = 'Dummy')
+        vg.add(obj)
+        context = testing.DummyModel()
+        request = testing.DummyRequest()
+        self.assertEqual(obj(context, request), None)
+
+    def test_call_with_interface_allow(self):
+        obj = self._cut(_name_callable, 'allow', interface = contexts.IRoot)
+        context = contexts.Root()
+        request = testing.DummyRequest()
+        self.assertEqual(obj(context, request), 'allow')
+
+    def test_call_with_interface_deny(self):
+        obj = self._cut(_name_callable, 'deny', interface = contexts.IOrganisation)
+        context = contexts.Root()
+        request = testing.DummyRequest()
+        self.assertEqual(obj(context, request), None)
+
+    def test_call_with_containment_allow(self):
+        obj = self._cut(_name_callable, 'allow', containment = contexts.IRoot)
+        root = contexts.Root()
+        root['d'] = context = testing.DummyModel()
+        request = testing.DummyRequest()
+        self.assertEqual(obj(context, request), 'allow')
+
+    def test_call_with_containment_deny(self):
+        obj = self._cut(_name_callable, 'deny', containment = contexts.IOrganisation)
+        root = contexts.Root()
+        root['d'] = context = testing.DummyModel()
+        request = testing.DummyRequest()
+        self.assertEqual(obj(context, request), None)
 
 
 class ViewActionDecoratorTests(TestCase):

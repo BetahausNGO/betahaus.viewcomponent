@@ -8,7 +8,8 @@ CREDITS = open(os.path.join(here, 'docs', 'CREDITS.rst')).read()
 CHANGES = open(os.path.join(here, 'docs', 'CHANGES.rst')).read()
 
 requires = ('pyramid>=1.2',
-            'pyramid_debugtoolbar',)
+            'zope.interface',
+            'venusian')
 
 setup(name='betahaus.viewcomponent',
       version='0.2dev',

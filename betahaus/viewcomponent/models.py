@@ -2,6 +2,7 @@ from zope.interface import implementer
 from pyramid.security import has_permission
 from pyramid.traversal import find_interface
 
+from betahaus.viewcomponent.interfaces import IViewAction
 from betahaus.viewcomponent.interfaces import IViewGroup
 
 
@@ -43,6 +44,7 @@ class ViewGroup(object):
     def __setitem__(self, key, value):
         assert isinstance(value, ViewAction)
         self._data[key] = value
+        value.parent = self
         if key not in self._order:
             self._order.append(key)
 
@@ -73,16 +75,8 @@ class ViewGroup(object):
     order = property(_get_order, _set_order)
 
     def get_context_vas(self, context, request):
-        results = []
-        for va in self.values():
-            if va.interface and not va.interface.providedBy(context):
-                continue
-            if va.permission and not self.perm_checker(va.permission, context, request):
-                continue
-            if va.containment and not find_interface(context, va.containment):
-                continue
-            results.append(va)
-        return results
+        # backward compat, not needed
+        return self.values()
 
     def add(self, view_action):
         self[view_action.name] = view_action
@@ -105,6 +99,7 @@ class ViewGroup(object):
         return "<%s '%s'>" % (classname, self.name)
 
 
+@implementer(IViewAction)
 class ViewAction(object):
 
     def __init__(self, _callable, name, title = u"",
@@ -118,8 +113,15 @@ class ViewAction(object):
         self.interface = interface
         self.containment = containment
         self.kwargs = kw
+        self.parent = None
 
     def __call__(self, context, request, **kw):
+        if self.interface and not self.interface.providedBy(context):
+            return
+        if self.permission and not self.parent.perm_checker(self.permission, context, request):
+            return
+        if self.containment and not find_interface(context, self.containment):
+            return
         return self.callable(context, request, self, **kw)
 
     def __repr__(self): # pragma : no cover

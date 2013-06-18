@@ -45,7 +45,8 @@ To get the result of a single ViewAction only, you can call ``render_view_action
 
     from betahaus.viewcomponent import render_view_action
     render_view_action(context, request, 'stuff', 'logo')
-  
+
+
 Another example - building a menu
 ---------------------------------
 
@@ -59,6 +60,7 @@ First, let's create minimal Python view code:
 
     from betahaus.viewcomponent import render_view_group
     from pyramid.view import view_config
+    
     @view_config(renderer = 'some/template.pt')
     def main_template(context, request):
         return dict(render_view_group = render_view_group)
@@ -100,6 +102,17 @@ To return them, we need decorated methods. Note that the ViewGroup
 
 After your app has been started, you'll have a menu now. Also, other apps may add to it the same way,
 or remove your initial alternatives.
+
+For full documentation of each method, please see interfaces.py.
+
+
+Requirements
+------------
+
+This package currently isn't usable outside of `Pyramid <http://www.pylonsproject.org/>`_, but it could be
+changed to be more generic and only require the basic `Zope Component Architechture <http://www.muthukadan.net/docs/zca.html>`_ .
+It also depends on venusian.
+
 
 Feedback and features
 ---------------------
