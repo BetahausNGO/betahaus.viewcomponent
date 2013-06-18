@@ -1,4 +1,9 @@
-from pyramid_debugtoolbar.panels import DebugPanel
+""" Debug panel for pyramid_debugtoolbar. It will require that package to be included first before including this. """
+try:
+    from pyramid_debugtoolbar.panels import DebugPanel
+except ImportError:
+    #DebugPanel won't be used, so it's not needed
+    DebugPanel = object
 
 from betahaus.viewcomponent.interfaces import IViewGroup
 

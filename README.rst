@@ -106,12 +106,28 @@ or remove your initial alternatives.
 For full documentation of each method, please see interfaces.py.
 
 
+Installing debug panel
+----------------------
+
+To see which view components that are registered and active, this package comes with a debug panel, ment to be used with
+`Pyramid Debug toolbar <http://docs.pylonsproject.org/projects/pyramid_debugtoolbar/en/latest/>`_.
+Include that package before including this debug panel. Usually something like this in your paster.ini file:
+
+::
+
+    pyramid.includes =
+        pyramid_debugtoolbar
+        betahaus.viewcomponent.debug_panel
+
+The panel will now display realtime information on active components, and where you can find their modules.
+
+
 Requirements
 ------------
 
 This package currently isn't usable outside of `Pyramid <http://www.pylonsproject.org/>`_, but it could be
 changed to be more generic and only require the basic `Zope Component Architechture <http://www.muthukadan.net/docs/zca.html>`_ .
-It also depends on venusian.
+It also depends on venusian, which will be fetched by Pyramid.
 
 
 Feedback and features

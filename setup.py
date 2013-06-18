@@ -7,12 +7,10 @@ README = open(os.path.join(here, 'README.rst')).read()
 CREDITS = open(os.path.join(here, 'docs', 'CREDITS.rst')).read()
 CHANGES = open(os.path.join(here, 'docs', 'CHANGES.rst')).read()
 
-requires = ('pyramid>=1.2',
-            'zope.interface',
-            'venusian')
+requires = ('pyramid>=1.2',)
 
 setup(name='betahaus.viewcomponent',
-      version='0.2dev',
+      version='0.2b',
       description='betahaus.viewcomponent',
       long_description=README + '\n\n' + CREDITS + '\n\n' +  CHANGES,
       classifiers=[
@@ -37,6 +35,5 @@ setup(name='betahaus.viewcomponent',
       use_2to3=True,
       entry_points = """\
       """,
-      paster_plugins=['pyramid'],
       )
 
