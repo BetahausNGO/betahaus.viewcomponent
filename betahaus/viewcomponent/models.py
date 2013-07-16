@@ -52,8 +52,16 @@ class ViewGroup(object):
         assert isinstance(value, ViewAction)
         self._data[key] = value
         value.parent = self
+        orderlen = len(self._order)
+        priority = value.priority if value.priority else orderlen
+        
         if key not in self._order:
-            self._order.append(key)
+            if priority == orderlen:
+                # Keep it O(1) if no priority set
+                self._order.append(key)
+            else:
+                # Insert to list with priority as index
+                self._order.insert(priority, key)
 
     def __delitem__(self, key):
         del self._data[key]
