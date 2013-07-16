@@ -110,7 +110,7 @@ class ViewGroup(object):
 class ViewAction(object):
 
     def __init__(self, _callable, name, title = u"",
-                 permission = None, interface = None, containment = None, **kw):
+                 permission = None, interface = None, containment = None, priority=None, **kw):
         assert callable(_callable)
         assert isinstance(name, basestring)
         self.callable = _callable
@@ -119,6 +119,7 @@ class ViewAction(object):
         self.permission = permission
         self.interface = interface
         self.containment = containment
+        self.priority = priority
         self.kwargs = kw
         self.parent = None
 
