@@ -10,7 +10,7 @@ CHANGES = open(os.path.join(here, 'docs', 'CHANGES.rst')).read()
 requires = ('pyramid>=1.2',)
 
 setup(name='betahaus.viewcomponent',
-      version='0.2b',
+      version='0.3b',
       description='betahaus.viewcomponent',
       long_description=README + '\n\n' + CREDITS + '\n\n' +  CHANGES,
       classifiers=[
