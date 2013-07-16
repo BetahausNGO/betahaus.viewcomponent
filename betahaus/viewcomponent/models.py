@@ -53,7 +53,7 @@ class ViewGroup(object):
         self._data[key] = value
         value.parent = self
         orderlen = len(self._order)
-        priority = value.priority if value.priority else orderlen
+        priority = orderlen if value.priority is None else value.priority
         
         if key not in self._order:
             if priority == orderlen:
