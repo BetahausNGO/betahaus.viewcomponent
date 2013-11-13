@@ -293,8 +293,7 @@ class RenderViewGroupTests(TestCase):
         context = testing.DummyResource()
         self.config.include("betahaus.viewcomponent.fixtures.dummy")
         res = self._fut(context, request, 'html')
-        expected = "{}, {}, <betahaus.viewcomponent.models.ViewAction 'stuff'>".format(
-            testing.DummyResource, testing.DummyRequest)
+        expected = "None, stuff"
         self.assertEqual(res, expected)
 
 

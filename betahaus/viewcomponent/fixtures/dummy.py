@@ -7,7 +7,7 @@ def _callme(*args):
 
 @view_action('html', 'stuff')
 def _callable_html(context, request, va):
-    return "%s, %s, %s" % (context.__class__, request.__class__, str(va))
+    return "%s, %s" % (context.__name__, 'stuff')
 
 
 def includeme(config):
