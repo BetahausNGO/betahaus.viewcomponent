@@ -1,4 +1,5 @@
-.. image:: https://travis-ci.org/robinharms/betahaus.viewcomponent.png?branch=master   :target: https://travis-ci.org/robinharms/betahaus.viewcomponent
+.. image:: https://travis-ci.org/robinharms/betahaus.viewcomponent.png?branch=master
+    :target: https://travis-ci.org/robinharms/betahaus.viewcomponent
 
 ViewComponent
 =============
