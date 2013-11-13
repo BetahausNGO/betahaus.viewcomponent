@@ -1,3 +1,10 @@
+(unreleased)
+------------
+
+- Merged a fix from ixmatus (Parnell Springmeyer) so exception messages that aren't passed as args won't
+  cause trouble. - thanks a lot!
+
+
 0.2b
 ----
 
