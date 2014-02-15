@@ -52,8 +52,16 @@ class ViewGroup(object):
         assert isinstance(value, ViewAction)
         self._data[key] = value
         value.parent = self
+        orderlen = len(self._order)
+        priority = orderlen if value.priority is None else value.priority
+        
         if key not in self._order:
-            self._order.append(key)
+            if priority == orderlen:
+                # Keep it O(1) if no priority set
+                self._order.append(key)
+            else:
+                # Insert to list with priority as index
+                self._order.insert(priority, key)
 
     def __delitem__(self, key):
         del self._data[key]
@@ -110,7 +118,7 @@ class ViewGroup(object):
 class ViewAction(object):
 
     def __init__(self, _callable, name, title = u"",
-                 permission = None, interface = None, containment = None, **kw):
+                 permission = None, interface = None, containment = None, priority=None, **kw):
         assert callable(_callable)
         assert isinstance(name, basestring)
         self.callable = _callable
@@ -119,6 +127,7 @@ class ViewAction(object):
         self.permission = permission
         self.interface = interface
         self.containment = containment
+        self.priority = priority
         self.kwargs = kw
         self.parent = None
 
