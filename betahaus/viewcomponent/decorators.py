@@ -6,22 +6,23 @@ from betahaus.viewcomponent.models import ViewGroup
 
 
 class view_action(object):
-    """Decorator for view actions. This sets up a ViewAction object
-    from a decorated callable.
+    """ Decorator for view actions. This sets up a ViewAction object
+        from a decorated callable.
     
-    group_name  -- the name of the group the decorated action is
-                   supposed to be rendered with
-    action_name -- cosmetic name of the decorated action
-    priority    -- priority with which the decorated action is rendered
-                   within the group
+    group_name
+        The name of the group the decorated action is supposed to be rendered with
+
+    action_name
+        The specific instance name that this callable will have.
+
+    priority
+        Priority with which the decorated action is rendered
+        within the group
+
     """
 
     def __init__(
-          self
-        , group_name
-        , action_name
-        , priority=None
-        , **kwargs):
+          self, group_name, action_name, priority=None, **kwargs):
 
         self.group_name = group_name
         self.action_name = action_name

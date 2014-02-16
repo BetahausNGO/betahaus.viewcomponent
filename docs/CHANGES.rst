@@ -1,12 +1,17 @@
-(unreleased)
-------------
+Changes
+=======
+
+
+0.3b / (unreleased)
+-------------------
 
 - Merged a fix from ixmatus (Parnell Springmeyer) so exception messages that aren't passed as args won't
   cause trouble. - thanks a lot!
+- New argument priority for view actions. [ixmatus]
 
 
-0.2b
-----
+0.2b (2013-06-18)
+-----------------
 
 -  Python3 support fixed by pib (Paul Bonser) - thanks a lot!
 -  Fetch and execution of vas changed - empty result should be ignored,

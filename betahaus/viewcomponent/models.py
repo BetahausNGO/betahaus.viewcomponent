@@ -8,7 +8,7 @@ from betahaus.viewcomponent.interfaces import IViewGroup
 
 @implementer(IViewGroup)
 class ViewGroup(object):
-    """ Named utility for views. Behaves like an ordered dict with some extra funkyness.
+    """ Named utility for views. Behaves much like an ordered dict.
         See interfaces.py for documentation.
     """
     
