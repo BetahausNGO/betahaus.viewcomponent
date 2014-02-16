@@ -113,7 +113,7 @@ class ViewGroupTests(TestCase):
         obj.add(self._view_action(_dummy_callable, 'one'))
         obj.add(self._view_action(_dummy_callable, 'two'))
         self.assertEqual(obj.order, ['one', 'two'])
-        
+
     def test_set_order(self):
         obj = self._cut()
         obj.add(self._view_action(_dummy_callable, 'one'))
@@ -181,6 +181,39 @@ class ViewGroupTests(TestCase):
         obj.add(va3)
         obj.order = ['three', 'one']
         self.assertEqual(obj.items(), [('three', va3), ('one', va1), ('two', va2)])
+
+    def test_priority_respected(self):
+        obj = self._cut()
+        va1 = self._view_action(_name_callable, 'one', priority = 1)
+        va2 = self._view_action(_name_callable, 'two', priority = 10)
+        va3 = self._view_action(_name_callable, 'three', priority = 5)
+        obj.add(va1)
+        obj.add(va2)
+        obj.add(va3)
+        self.assertEqual(obj.items(), [('one', va1), ('three', va3), ('two', va2)])
+        self.assertEqual(obj.order, ['one', 'three', 'two'])
+
+    def test_priority_equal_values(self):
+        obj = self._cut()
+        va1 = self._view_action(_name_callable, 'one', priority = 1)
+        va2 = self._view_action(_name_callable, 'two', priority = 2)
+        va3 = self._view_action(_name_callable, 'three', priority = 1)
+        obj.add(va1)
+        obj.add(va2)
+        obj.add(va3)
+        self.assertEqual(obj.items(), [('one', va1), ('three', va3), ('two', va2)])
+        self.assertEqual(obj.order, ['one', 'three', 'two'])
+
+    def test_priority_specified_mixed_with_no_value(self):
+        obj = self._cut()
+        va1 = self._view_action(_name_callable, 'one')
+        va2 = self._view_action(_name_callable, 'two', priority = 2)
+        va3 = self._view_action(_name_callable, 'three', priority = 1)
+        obj.add(va1)
+        obj.add(va2)
+        obj.add(va3)
+        self.assertEqual(obj.items(), [('three', va3), ('two', va2), ('one', va1)])
+        self.assertEqual(obj.order, ['three', 'two', 'one'])
 
 
 class ViewActionTests(TestCase):
