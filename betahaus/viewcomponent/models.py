@@ -119,7 +119,7 @@ class ViewAction(object):
     def __init__(self, _callable, name, title = u"",
                  permission = None, interface = None, containment = None, priority=None, **kw):
         assert callable(_callable)
-        assert isinstance(name, basestring)
+        assert isinstance(name, str)
         self.callable = _callable
         self.name = name
         self.title = title
