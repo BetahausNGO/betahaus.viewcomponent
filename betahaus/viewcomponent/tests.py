@@ -99,7 +99,7 @@ class ViewGroupTests(TestCase):
         obj.add(va)
         try:
             obj(None, None)
-        except Exception, exc:
+        except Exception as exc:
             self.failUnless('this_view_group' in exc.args[0])
 
     def test_call_empty_output(self):
