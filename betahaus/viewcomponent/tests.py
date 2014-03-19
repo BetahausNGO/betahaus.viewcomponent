@@ -93,15 +93,6 @@ class ViewGroupTests(TestCase):
         obj.add(va)
         self.assertRaises(TypeError, obj, None, None)
 
-    def test_call_exception_from_va(self):
-        obj = self._cut()
-        va = self._view_action(_failing_callable, 'this_view_group')
-        obj.add(va)
-        try:
-            obj(None, None)
-        except Exception as exc:
-            self.failUnless('this_view_group' in exc.args[0])
-
     def test_call_empty_output(self):
         obj = self._cut()
         va = self._view_action(_none_callable, 'this_view_group')
@@ -132,11 +123,10 @@ class ViewGroupTests(TestCase):
 
     def test_order_bad_key(self):
         obj = self._cut()
-        try:
-            obj.order = ['404']
-            self.fail("KeyError not raised")
-        except KeyError:
-            pass
+        obj.add(self._view_action(_name_callable, 'one'))
+        obj.add(self._view_action(_name_callable, 'two'))
+        obj.order = ['one', '404', 'two', 'none']
+        self.assertEqual(obj.order, ['one', 'two'])
 
     def test_set_order_with_some_keys_left_out(self):
         obj = self._cut()

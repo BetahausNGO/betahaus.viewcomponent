@@ -40,9 +40,7 @@ class IViewGroup(Interface):
     
     def __call__(context, request, **kw):
         """ Return a list with the output of each contained view action.
-            Call will also catch exceptions and add a bit extra information
-            to them so it's easier to identify where it came from.
-            (Tracebacks can otherwise be kind of weird, especially from nested view groups)
+            Any keywords will be passed along to the view action aswell.
         """
 
     def __getitem__(key):

@@ -1,9 +1,13 @@
+import logging
+
 from zope.interface import implementer
 from pyramid.security import has_permission
 from pyramid.traversal import find_interface
 
 from betahaus.viewcomponent.interfaces import IViewAction
 from betahaus.viewcomponent.interfaces import IViewGroup
+
+logger = logging.getLogger(__name__)
 
 
 @implementer(IViewGroup)
@@ -21,29 +25,8 @@ class ViewGroup(object):
         self._data = {}
     
     def __call__(self, context, request, **kw):
-        results = []
-        for va in self.get_context_vas(context, request):
-            try:
-                results.append(va(context, request, **kw))
-            except Exception as exc:
-                eargs = list(exc.args)
-                msg = "ViewAction '%s' of ViewGroup '%s' raised an exception: %s"
-                
-                # We do this because not all libraries provide their
-                # error messages through the args!
-                if eargs:
-                    eargs[0] = msg % (va.name, self.name, exc.args[0])
-                else:
-                    eargs.append(msg % (va.name, self.name, exc.__class__))
-                exc.args = eargs
-                raise exc
-        try:
-            return u"".join([x for x in results if x])
-        except TypeError as exc:
-            eargs = list(exc.args)
-            eargs[0] = "ViewGroup '%s' raised an exception: %s" % (self.name, exc.args[0])
-            exc.args = eargs
-            raise exc
+        va_output = [x(context, request, **kw) for x in self.values()]
+        return "".join([x for x in va_output if x])
 
     def __getitem__(self, key):
         return self._data[key]
@@ -73,20 +56,29 @@ class ViewGroup(object):
     def __contains__(self, key):
         return key in self._data
 
-    def _get_order(self):
+    @property
+    def order(self):
         return self._order
 
-    def _set_order(self, value):
+    @order.setter
+    def order(self, values):
         handle_keys = set(self.order)
-        value = [unicode(x) for x in value]
-        for val in value:
-            if val not in self:
-                raise KeyError("You can't set order with key '%s' since it doesn't exist in this util." % val)
-            handle_keys.remove(val)
-        for unhandled_key in handle_keys:
-            value.append(unhandled_key)
-        self._order = value
-    order = property(_get_order, _set_order)
+        values = [unicode(x) for x in values]
+        bad_keys = set()
+        new_order = []
+        while values:
+            val = values.pop(0)
+            if val in handle_keys:
+                handle_keys.remove(val)
+                new_order.append(val)
+            else:
+                bad_keys.add(val)
+        if bad_keys:
+            logger.warning("The following keys didn't exist: '%s'" % "', '".join(bad_keys))
+        if handle_keys:
+            logger.warning("The following keys were appended at the end since they existed: '%s'" % "', '".join(handle_keys))
+            new_order.extend(handle_keys)
+        self._order = new_order
 
     def get_context_vas(self, context, request):
         # backward compat, not needed
