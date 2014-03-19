@@ -5,7 +5,7 @@ Changes
 0.3b / (2014-03-19)
 -------------------
 
-- View groups don't catch exceptions anylonger. This was a cause of a lot of
+- View groups don't catch exceptions any longer. This was a cause of a lot of
   odd error messages on Python 2.
 - Ordering with bad keys don't cause exceptions - they're logged as warnings instead.
 - New argument priority for view actions. [ixmatus]
