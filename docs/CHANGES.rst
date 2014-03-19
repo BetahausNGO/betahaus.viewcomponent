@@ -1,9 +1,12 @@
 Changes
 =======
 
+0.3.1dev (unreleased)
+----------------
 
-0.3b / (2014-03-19)
--------------------
+
+0.3b (2014-03-19)
+-----------------
 
 - View groups don't catch exceptions any longer. This was a cause of a lot of
   odd error messages on Python 2.
