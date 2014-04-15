@@ -172,6 +172,16 @@ class ViewGroupTests(TestCase):
         obj.order = ['three', 'one']
         self.assertEqual(obj.items(), [('three', va3), ('one', va1), ('two', va2)])
 
+    def test_deleted_resource_removed_from_order(self):
+        obj = self._cut()
+        va1 = self._view_action(_name_callable, 'one')
+        va2 = self._view_action(_name_callable, 'two')
+        obj.add(va1)
+        obj.add(va2)
+        obj.order = ['two', 'one']
+        del obj['two']
+        self.assertEqual(obj.order, ['one'])
+
     def test_priority_respected(self):
         obj = self._cut()
         va1 = self._view_action(_name_callable, 'one', priority = 1)
