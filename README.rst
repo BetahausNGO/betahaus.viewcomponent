@@ -4,4 +4,4 @@
 betahaus.viewcomponent
 ======================
 
-See docs/README.rst
+See docs/index.rst
