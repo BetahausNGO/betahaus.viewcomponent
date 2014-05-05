@@ -1,9 +1,10 @@
 Changes
 =======
 
-0.3.1dev (unreleased)
-----------------
+0.3.1b (2014-05-05)
+-------------------
 
+- Unicode wasn't an allowed string-type... (Brown paperbag for me) [robinharms]
 
 0.3b (2014-03-19)
 -----------------

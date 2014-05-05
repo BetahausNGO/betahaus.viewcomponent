@@ -6,6 +6,7 @@ from pyramid.traversal import find_interface
 
 from betahaus.viewcomponent.interfaces import IViewAction
 from betahaus.viewcomponent.interfaces import IViewGroup
+from betahaus.viewcomponent.compat import string_types
 
 logger = logging.getLogger(__name__)
 
@@ -80,7 +81,7 @@ class ViewGroup(object):
             new_order.extend(handle_keys)
         self._order = new_order
 
-    def get_context_vas(self, context, request):
+    def get_context_vas(self, context, request): # pragma: no cover
         # backward compat, not needed
         return self.values()
 
@@ -110,8 +111,8 @@ class ViewAction(object):
 
     def __init__(self, _callable, name, title = u"",
                  permission = None, interface = None, containment = None, priority=None, **kw):
-        assert callable(_callable)
-        assert isinstance(name, str)
+        assert callable(_callable), "First argument must be a callable"
+        assert isinstance(name, string_types), "Second argument name should be a string"
         self.callable = _callable
         self.name = name
         self.title = title

@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from betahaus.viewcomponent import view_action
 
 

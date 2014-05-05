@@ -123,6 +123,8 @@ Include that package before including this debug panel. Usually something like t
 
 The panel will now display realtime information on active components, and where you can find their modules.
 
+Note: The debug panel might not work with future versions of pyramid_debugtoolbar
+
 
 Requirements
 ------------
