@@ -8,7 +8,7 @@ CREDITS = open(os.path.join(HERE, 'CREDITS.rst')).read()
 CHANGES = open(os.path.join(HERE, 'CHANGES.rst')).read()
 
 requires = ('pyramid>=1.2',
-            'venusian'
+            'venusian',
             'zope.interface',)
 
 setup(name='betahaus.viewcomponent',
