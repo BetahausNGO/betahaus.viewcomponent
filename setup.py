@@ -12,7 +12,7 @@ requires = ('pyramid>=1.2',
             'zope.interface',)
 
 setup(name='betahaus.viewcomponent',
-      version='0.4.0',
+      version='0.4.1',
       description='Plugin structure for menus, JSON responses or similar.',
       long_description=README + '\n\n' + CREDITS + '\n\n' +  CHANGES,
       classifiers=[

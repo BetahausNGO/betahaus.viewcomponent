@@ -1,7 +1,7 @@
 Changes
 =======
 
-0.4.0 (2015-04-04)
+0.4.1 (2015-04-04)
 ------------------
 
 - Added: Option to return dict, generator or list instead of just joined strings.
