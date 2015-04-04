@@ -6,7 +6,7 @@ python:
   - 3.3
 
 install:
-  - python bootstrap.py
+  - python bootstrap-buildout.py
   - bin/buildout
 
 script: bin/py setup.py test -q
