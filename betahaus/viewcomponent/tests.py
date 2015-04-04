@@ -215,6 +215,89 @@ class ViewGroupTests(TestCase):
         self.assertEqual(obj.items(), [('three', va3), ('two', va2), ('one', va1)])
         self.assertEqual(obj.order, ['three', 'two', 'one'])
 
+    def test_same_key_overrides_other(self):
+        obj = self._cut()
+        va1 = self._view_action(_name_callable, 'one')
+        va2 = self._view_action(_name_callable, 'one', priority = 2)
+        obj.add(va1)
+        obj.add(va2)
+        self.assertEqual(obj.order, ['one'])
+        self.assertEqual(obj.items(), [('one', va2)])
+
+    def test_override_preserves_position(self):
+        obj = self._cut()
+        va1 = self._view_action(_name_callable, 'one')
+        va2 = self._view_action(_name_callable, 'two')
+        va3 = self._view_action(_name_callable, 'three')
+        va2_2 = self._view_action(_name_callable, 'two')
+        obj.add(va1)
+        obj.add(va2)
+        obj.add(va3)
+        obj.add(va2_2)
+        self.assertEqual(obj.items(), [('one', va1), ('two', va2_2), ('three', va3)])
+
+    def test_as_type_generator(self):
+        obj = self._cut()
+        va1 = self._view_action(_name_callable, 'one')
+        obj.add(va1)
+        res = obj(None, None, as_type = 'generator')
+        self.assertEqual(res.__class__.__name__, 'generator')
+        self.assertEqual(res.next(), 'one')
+
+    def test_as_type_generator_empty_val(self):
+        obj = self._cut()
+        va1 = self._view_action(_none_callable, 'one')
+        obj.add(va1)
+        res = obj(None, None, as_type = 'generator', empty_val = '___')
+        self.assertEqual(res.next(), '___')
+
+    def test_as_type_dict(self):
+        obj = self._cut()
+        va1 = self._view_action(_name_callable, 'one')
+        va2 = self._view_action(_name_callable, 'two')
+        va3 = self._view_action(_none_callable, 'three')
+        obj.add(va1)
+        obj.add(va2)
+        obj.add(va3)
+        self.assertEqual(obj(None, None, as_type = 'dict'), {'one': 'one', 'two': 'two'})
+
+    def test_as_type_dict_empty_val(self):
+        obj = self._cut()
+        va1 = self._view_action(_name_callable, 'one')
+        va2 = self._view_action(_name_callable, 'two')
+        va3 = self._view_action(_none_callable, 'three')
+        obj.add(va1)
+        obj.add(va2)
+        obj.add(va3)
+        self.assertEqual(obj(None, None, as_type = 'dict', empty_val = '_'),
+                         {'one': 'one', 'two': 'two', 'three': '_'})
+
+    def test_as_type_list(self):
+        obj = self._cut()
+        va1 = self._view_action(_name_callable, 'one')
+        va2 = self._view_action(_name_callable, 'two')
+        va3 = self._view_action(_none_callable, 'three')
+        obj.add(va1)
+        obj.add(va2)
+        obj.add(va3)
+        self.assertEqual(obj(None, None, as_type = 'list'), ['one', 'two'])
+
+    def test_as_type_list_empty_val(self):
+        obj = self._cut()
+        va1 = self._view_action(_name_callable, 'one')
+        va2 = self._view_action(_name_callable, 'two')
+        va3 = self._view_action(_none_callable, 'three')
+        obj.add(va1)
+        obj.add(va2)
+        obj.add(va3)
+        self.assertEqual(obj(None, None, as_type = 'list', empty_val = '_'), ['one', 'two', '_'])
+
+    def test_as_type_bad_value(self):
+        obj = self._cut()
+        va1 = self._view_action(_name_callable, 'one')
+        obj.add(va1)
+        self.assertRaises(ValueError, obj, None, None, as_type = '404')
+
 
 class ViewActionTests(TestCase):
     def setUp(self):
@@ -296,6 +379,7 @@ class ViewActionTests(TestCase):
 
 
 class ViewActionDecoratorTests(TestCase):
+
     def setUp(self):
         self.config = testing.setUp()
 
@@ -304,6 +388,24 @@ class ViewActionDecoratorTests(TestCase):
 
     def test_dummy_picked_up_on_scan(self):
         self.config.include("betahaus.viewcomponent.fixtures.dummy")
+        util = self.config.registry.getUtility(IViewGroup, name = 'group')
+        res = util('context', 'request')
+        self.assertEqual(res, "contextrequest<betahaus.viewcomponent.models.ViewAction 'action'>")
+
+
+class ViewActionDirectiveTests(TestCase):
+
+    def setUp(self):
+        self.config = testing.setUp()
+        self.config.include('betahaus.viewcomponent')
+
+    def tearDown(self):
+        testing.tearDown()
+
+    def test_directive(self):
+        def _callme(*args):
+            return "".join([str(x) for x in args])
+        self.config.add_view_action(_callme, 'group', 'action')
         util = self.config.registry.getUtility(IViewGroup, name = 'group')
         res = util('context', 'request')
         self.assertEqual(res, "contextrequest<betahaus.viewcomponent.models.ViewAction 'action'>")
@@ -328,6 +430,13 @@ class RenderViewGroupTests(TestCase):
         res = self._fut(context, request, 'html')
         expected = "None, stuff"
         self.assertEqual(res, expected)
+
+    def test_spacer_option(self):
+        request = testing.DummyRequest()
+        context = testing.DummyResource()
+        self.config.include("betahaus.viewcomponent.fixtures.group")
+        res = self._fut(context, request, 'group', spacer="-")
+        self.assertEqual(res, "three-two-one")
 
 
 class RenderViewActionTests(TestCase):

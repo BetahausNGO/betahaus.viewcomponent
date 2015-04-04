@@ -1,6 +1,17 @@
 Changes
 =======
 
+0.4.0 (2015-04-04)
+------------------
+
+- Added: Option to return dict, generator or list instead of just joined strings.
+- Added: Spacer option for the join statement.
+- Added: A config directive ''add_view_action'' to att view actions without scanning.
+- Fixed instance when replacing a ViewAction caused the new action to be displayed twice.
+- Bugfix: When replacing, the order should be preserved unless priority is set.
+- Removed debug panel since the code was outdated and didn't work with
+  the newer version of pyramid_debugtoolbar
+
 0.3.1b (2014-05-05)
 -------------------
 

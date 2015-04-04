@@ -1,8 +1,6 @@
 import venusian
 
-from betahaus.viewcomponent.interfaces import IViewGroup
-from betahaus.viewcomponent.models import ViewAction
-from betahaus.viewcomponent.models import ViewGroup
+from betahaus.viewcomponent.models import add_view_action
 
 
 class view_action(object):
@@ -20,22 +18,16 @@ class view_action(object):
         within the group
 
     """
-
-    def __init__(
-          self, group_name, action_name, priority=None, **kwargs):
-
+    def __init__(self, group_name, action_name, priority=None, **kwargs):
         self.group_name = group_name
         self.action_name = action_name
         self.priority = priority
         self.kwargs = kwargs
 
     def register(self, scanner, name, wrapped):
-        view_group = scanner.config.registry.queryUtility(IViewGroup, name = self.group_name)
-        if view_group is None:
-            view_group = ViewGroup(self.group_name)
-            scanner.config.registry.registerUtility(view_group, IViewGroup, name = self.group_name)
-        va =  ViewAction(wrapped, self.action_name, priority=self.priority, **self.kwargs)
-        view_group.add(va)
+        add_view_action(wrapped, self.group_name, self.action_name,
+                        priority = self.priority, registry = scanner.config.registry,
+                        **self.kwargs)
 
     def __call__(self, wrapped):
         venusian.attach(wrapped, self.register, category='betahaus.viewcomponent')

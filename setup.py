@@ -7,23 +7,26 @@ README = open(os.path.join(here, 'README.rst')).read()
 CREDITS = open(os.path.join(here, 'docs', 'CREDITS.rst')).read()
 CHANGES = open(os.path.join(here, 'docs', 'CHANGES.rst')).read()
 
-requires = ('pyramid>=1.2',)
+requires = ('pyramid>=1.2',
+            'venusian'
+            'zope.interface',)
 
 setup(name='betahaus.viewcomponent',
-      version='0.3.1b',
-      description='betahaus.viewcomponent',
+      version='0.4.0',
+      description='Plugin structure for menus, JSON responses or similar.',
       long_description=README + '\n\n' + CREDITS + '\n\n' +  CHANGES,
       classifiers=[
-        "Programming Language :: Python",
+        "Development Status :: 5 - Production/Stable",
+        "Environment :: Web Environment",
         "Framework :: Pyramid",
-        "Topic :: Internet :: WWW/HTTP",
-        "Topic :: Internet :: WWW/HTTP :: WSGI :: Application",
         "Intended Audience :: Developers",
-        "License :: OSI Approved :: GNU General Public License (GPL)",
-        "Development Status :: 4 - Beta",
+        "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python",
+        "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+        "Topic :: Internet :: WWW/HTTP",
         ],
       author='Robin Harms Oredsson',
       author_email='robin@betahaus.net',

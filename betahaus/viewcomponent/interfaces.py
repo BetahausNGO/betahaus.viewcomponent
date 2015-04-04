@@ -2,6 +2,9 @@ from zope.interface import Attribute
 from zope.interface import Interface
 
 
+_marker = object()
+
+
 class IViewGroup(Interface):
     """ A dict-like utility that will contain ViewAction objects.
         There are a few differences from normal dictionaries.
@@ -13,7 +16,7 @@ class IViewGroup(Interface):
         You normally won't add these yourself, but rather use the decorator
         view_action which will create ViewGroup utilities as needed.
 
-        Below, we use the followong names:
+        Below, we use the following names:
         * view_group is an instantiated ViewGroup object.
         * view_action is an instantiated ViewAction object. (I.e. not the decorator)
     """
@@ -38,9 +41,26 @@ class IViewGroup(Interface):
             to Pyramids version if None is supplied.
         """
     
-    def __call__(context, request, **kw):
+    def __call__(context, request, as_type = None, spacer = "", empty_val = _marker, **kw):
         """ Return a list with the output of each contained view action.
-            Any keywords will be passed along to the view action aswell.
+            Any keywords will be passed along to the view action as well.
+            
+            ``as_type``
+            
+                Defaults to string output, but could be 'list', 'dict' or 'generator'.
+                See each method (as_list, as_dict, as_generator) for more info.
+            
+            ``spacer``
+            
+                When a string is returned, spacer means whatever the join statement
+                will used on. Example: A view group contains 2 items that would return
+                'one' and 'two'. If spacer would be ' - ', the result would be:
+                'one - two'.
+            
+            ``empty_val``
+            
+                If this is specified, empty values (None or "") won't be removed from
+                the result, but replaced with this value.
         """
 
     def __getitem__(key):
@@ -80,6 +100,18 @@ class IViewGroup(Interface):
     def items():
         """ Same as normal dict, but ordered. """
 
+    def as_generator(context, request, empty_val = _marker, **kw):
+        """ Return a generator with the output.
+        """
+
+    def as_dict(context, request, empty_val = _marker, **kw):
+        """ Return all of the output as a dict with the view action name as key.
+        """
+
+    def as_list(context, request, empty_val = _marker, **kw):
+        """ Return all the output in the format of a list instead.
+        """
+
 
 class IViewAction(Interface):
     """ ViewAction objects ment to populate ViewGroups. They're created on the fly through the use of the @view_action
@@ -104,5 +136,3 @@ class IViewAction(Interface):
 
     def __call__(context, request, **kw):
         """ Return the result of this view action, if allowed. """
-
-

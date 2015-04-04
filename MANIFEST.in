@@ -1,3 +1,4 @@
 include *.txt *.cfg *.rst
 recursive-include betahaus *.pt *.txt *.rst
 recursive-include docs *.txt *.rst
+exclude bootstrap-buildout.py
