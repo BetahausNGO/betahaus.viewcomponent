@@ -1,5 +1,5 @@
 .. image:: https://travis-ci.org/robinharms/betahaus.viewcomponent.png?branch=master
-    :target: https://travis-ci.org/robinharms/betahaus.viewcomponent
+  :target: https://travis-ci.org/robinharms/betahaus.viewcomponent
 
 betahaus.viewcomponent README
 =============================
@@ -22,10 +22,10 @@ in this example.
 
 .. code-block:: python
 
-    from betahaus.viewcomponent import view_action
-    @view_action('stuff', 'logo')
-    def logo_tag(context, request, va):
-        return '<img src="img.png" />'
+   from betahaus.viewcomponent import view_action
+   @view_action('stuff', 'logo')
+   def logo_tag(context, request, va):
+     return '<img src="img.png" />'
 
 When you run ``config.scan('your-apps-name')`` with this code present,
 it will create a ViewGroup with the name 'stuff', that has a ViewAction
@@ -36,13 +36,13 @@ You need to include ``betahaus.viewcomponent`` in that case.
 
 .. code-block:: python
 
-    #Code in your package
-
-    def logo_tag(context, request, va):
-        return '<img src="img.png" />'
-
-    def includeme(config):
-        config.add_view_action(logo_tag, 'stuff', 'logo')
+   #Code in your package
+   
+   def logo_tag(context, request, va):
+       return '<img src="img.png" />'
+   
+   def includeme(config):
+       config.add_view_action(logo_tag, 'stuff', 'logo')
 
 
 The ViewGroup is an ordered dict-like Utility, that keeps track of ViewActions.
@@ -51,8 +51,8 @@ If you want to get the result of a ViewGroup, simply do this:
 
 .. code-block:: python
 
-    from betahaus.viewcomponent import render_view_group
-    render_view_group(context, request, 'stuff')
+   from betahaus.viewcomponent import render_view_group
+   render_view_group(context, request, 'stuff')
 
 Since there's nothing else in this ViewGroup, only the logo tag will be returned.
 
@@ -60,8 +60,8 @@ To get the result of a single ViewAction only, you can call ``render_view_action
 
 .. code-block:: python
 
-    from betahaus.viewcomponent import render_view_action
-    render_view_action(context, request, 'stuff', 'logo')
+   from betahaus.viewcomponent import render_view_action
+   render_view_action(context, request, 'stuff', 'logo')
 
 
 Another example - building a menu
@@ -75,12 +75,12 @@ First, let's create minimal Python view code:
 
 .. code-block:: python
 
-    from betahaus.viewcomponent import render_view_group
-    from pyramid.view import view_config
-    
-    @view_config(renderer = 'some/template.pt')
-    def main_template(context, request):
-        return dict(render_view_group = render_view_group)
+   from betahaus.viewcomponent import render_view_group
+   from pyramid.view import view_config
+   
+   @view_config(renderer = 'some/template.pt')
+   def main_template(context, request):
+       return dict(render_view_group = render_view_group)
       
 And then the template:
 
@@ -98,21 +98,21 @@ To return them, we need decorated methods. Note that the ViewGroup
 
 .. code-block:: python
 
-    from betahaus.viewcomponent import view_action
-
-
-    @view_action('menu', 'login')
-    def login_link(context, request, va):
-        return "<li><a href="/login">Login</a></li>"
-
-    @view_action('menu', 'logout')
-    def logout_link(context, request, va):
-        return "<li><a href="/logout">Logout</a></li>"
-
-    @view_action('menu', 'my_personal_stuff', permission = 'ViewStuff')
-    def personal_link(context, request, va):
-        """ This will only render if user has permission 'ViewStuff'"""
-        return "<li><a href="/my-stuff">My stuff</a></li>"
+   from betahaus.viewcomponent import view_action
+   
+   
+   @view_action('menu', 'login')
+   def login_link(context, request, va):
+       return '<li><a href="/login">Login</a></li>'
+   
+   @view_action('menu', 'logout')
+   def logout_link(context, request, va):
+       return '<li><a href="/logout">Logout</a></li>'
+   
+   @view_action('menu', 'my_personal_stuff', permission = 'ViewStuff')
+   def personal_link(context, request, va):
+       """ This will only render if user has permission 'ViewStuff'"""
+       return '<li><a href="/my-stuff">My stuff</a></li>'
 
 After your app has been started, you'll have a menu now. Also, other apps may add to it the same way,
 or remove your initial alternatives.
@@ -130,38 +130,38 @@ field is to be treated as sensitive information.
 
 .. code-block:: python
 
-    class User(object):
-        userid = ""
-        email = ""
+   class User(object):
+       userid = ""
+       email = ""
 
-    #<etc...>
-
+   #etc...
+ 
 First, add two view actions for userid and email. The email one will have the permission
 ``Show secret``.
 
 .. code-block:: python
 
-    from betahaus.viewcomponent import view_action
-    
-    @view_action('json', 'userid')
-    def get_userid(context, request, va, **kw)
-        return getattr(context, 'userid', '')
-
-    @view_action('json', 'email', permission = 'Show secret')
-    def get_email(context, request, va, **kw)
-        return getattr(context, 'email', '')
+   from betahaus.viewcomponent import view_action
+   
+   @view_action('json', 'userid')
+   def get_userid(context, request, va, **kw):
+       return getattr(context, 'userid', '')
+   
+   @view_action('json', 'email', permission = 'Show secret')
+   def get_email(context, request, va, **kw):
+       return getattr(context, 'email', '')
 
 Second, lets register a regular view, that will return the view group ``json``.
 
 .. code-block:: python
 
-    from betahaus.viewcomponent import render_view_group
-    from pyramid.view import view_config
-
-    @view_config(context = 'User', renderer = 'json', name = 'user.json')
-    def user_view(context, request):
-        """ Render json."""
-        return render_view_group(context, request, 'json', as_type='dict', empty_val = '')
+   from betahaus.viewcomponent import render_view_group
+   from pyramid.view import view_config
+   
+   @view_config(context = 'User', renderer = 'json', name = 'user.json')
+   def user_view(context, request):
+       """ Render json."""
+       return render_view_group(context, request, 'json', as_type='dict', empty_val = '')
 
 Email will now only be included if the user/thing requesting the view
 has the ``Show secret`` permission.
