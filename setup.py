@@ -2,10 +2,10 @@ import os
 
 from setuptools import setup, find_packages
 
-here = os.path.abspath(os.path.dirname(__file__))
-README = open(os.path.join(here, 'README.rst')).read()
-CREDITS = open(os.path.join(here, 'docs', 'CREDITS.rst')).read()
-CHANGES = open(os.path.join(here, 'docs', 'CHANGES.rst')).read()
+HERE = os.path.abspath(os.path.dirname(__file__))
+README = open(os.path.join(HERE, 'README.rst')).read()
+CREDITS = open(os.path.join(HERE, 'CREDITS.rst')).read()
+CHANGES = open(os.path.join(HERE, 'CHANGES.rst')).read()
 
 requires = ('pyramid>=1.2',
             'venusian'
@@ -40,6 +40,4 @@ setup(name='betahaus.viewcomponent',
       test_suite="betahaus.viewcomponent",
       use_2to3=True,
       entry_points = """\
-      """,
-      )
-
+      """,)
